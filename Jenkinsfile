@@ -16,9 +16,10 @@ pipeline {
                     // Configurar las credenciales si es necesario
                     def branchName = env.BRANCH_NAME
                     if (!branchName) {
-                        error "BRANCH_NAME is not set"
+                        error "\u001B[31mERROR:\u001B[0m BRANCH_NAME is not set"
                     }
                     git branch: branchName, url: REPO_URL, credentialsId: 'github'
+                    echo "\u001B[32mSUCCESS:\u001B[0m Cloned repository successfully"
                 }
             }
         }
@@ -32,20 +33,20 @@ pipeline {
 
                     // Validar que los parámetros no sean nulos ni vacíos
                     if (!namespace?.trim()) {
-                        error "NAMESPACE is not set properly"
+                        error "\u001B[31mERROR:\u001B[0m NAMESPACE is not set properly"
                     }
                     if (!serviceName?.trim()) {
-                        error "SERVICE_NAME is not set properly"
+                        error "\u001B[31mERROR:\u001B[0m SERVICE_NAME is not set properly"
                     }
 
                     // Asignar las variables de entorno
                     env.NAMESPACE = namespace
                     env.SERVICE_NAME = serviceName
 
-                    echo "NAMESPACE: ${env.NAMESPACE}"
-                    echo "SERVICE_NAME: ${env.SERVICE_NAME}"
+                    echo "\u001B[32mINFO:\u001B[0m NAMESPACE: ${env.NAMESPACE}"
+                    echo "\u001B[32mINFO:\u001B[0m SERVICE_NAME: ${env.SERVICE_NAME}"
                     // Listar archivos de ese namespace
-                    sh "echo Listar servicios de namespace"
+                    sh "echo \u001B[32mINFO:\u001B[0m Listing services in namespace: ${env.NAMESPACE}"
                     sh "ls -ltr ${env.NAMESPACE}"
                 }
             }
@@ -57,8 +58,9 @@ pipeline {
                     // Leer el archivo cuyo nombre es el del servicio con extensión .txt
                     def fileName = "${env.NAMESPACE}/${env.SERVICE_NAME}.txt"
                     if (!fileExists(fileName)) {
-                        error "File not found: ${fileName}"
+                        error "\u001B[31mERROR:\u001B[0m File not found: ${fileName}"
                     }
+                    echo "\u001B[32mINFO:\u001B[0m File content of ${fileName}:"
                     sh "cat ${fileName}"
                 }
             }
