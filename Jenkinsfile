@@ -8,7 +8,7 @@ pipeline {
     }
 
     stages {
-        stage('Extract Information') {
+        stage('Branch') {
             steps {
                 script {
                     // Establecer las variables dependiendo de la rama
@@ -21,27 +21,34 @@ pipeline {
                     } else {
                         error "Branch not supported"
                     }
+                }
+            }
+        }
+        stage('service') {
+            steps {
+                script {
+                                        
+                    // Leer el archivo y extraer la información
+                    def fileContent = readFile('info.txt')
+                    def lines = fileContent.split('\n')
+                    def infoMap = [:]
 
-                    // // Leer el archivo y extraer la información
-                    // def fileContent = readFile('info.txt')
-                    // def lines = fileContent.split('\n')
-                    // def infoMap = [:]
+                    lines.each { line ->
+                        def parts = line.split('=')
+                        if (parts.size() == 2) {
+                            def key = parts[0].trim()
+                            def value = parts[1].trim()
+                            if (key.startsWith("${env.NAMESPACE}.${env.SERVICE_NAME}")) {
+                                infoMap[key] = value
+                            }
+                        }
+                    }
 
-                    // lines.each { line ->
-                    //     def parts = line.split('=')
-                    //     if (parts.size() == 2) {
-                    //         def key = parts[0].trim()
-                    //         def value = parts[1].trim()
-                    //         if (key.startsWith("${env.NAMESPACE}.${env.SERVICE_NAME}")) {
-                    //             infoMap[key] = value
-                    //         }
-                    //     }
-                    // }
+                    echo "Extracted Information:"
+                    infoMap.each { key, value ->
+                        echo "${key} = ${value}"
+                    }
 
-                    // echo "Extracted Information:"
-                    // infoMap.each { key, value ->
-                    //     echo "${key} = ${value}"
-                    // }
                 }
             }
         }
