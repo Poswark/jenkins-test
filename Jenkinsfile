@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build')
+        string(name: 'BRANCH_NAME', defaultValue: 'trunk', description: 'Branch to build')
         string(name: 'NAMESPACE', defaultValue: '', description: 'Namespace of the service')
         string(name: 'SERVICE_NAME', defaultValue: '', description: 'Name of the service')
     }
