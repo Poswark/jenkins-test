@@ -1,10 +1,12 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'main', description: 'Branch to build')
+        string(name: 'NAMESPACE', defaultValue: '', description: 'Namespace of the service')
+        string(name: 'SERVICE_NAME', defaultValue: '', description: 'Name of the service')
+    }
     environment {
-        // Variables para el namespace y el nombre del servicio
-        NAMESPACE = ''
-        SERVICE_NAME = ''
         REPO_URL = 'https://github.com/Poswark/jenkins-test.git'
     }
 
@@ -17,7 +19,7 @@ pipeline {
                     if (!branchName) {
                         error "BRANCH_NAME is not set"
                     }
-                    git branch: branchName, url: REPO_URL
+                    git branch: branchName, url: REPO_URL, credentialsId: 'github'
                 }
             }
         }
@@ -25,16 +27,21 @@ pipeline {
         stage('Set Variables') {
             steps {
                 script {
-                    // Establecer las variables dependiendo de la rama
-                    if (env.BRANCH_NAME == 'trunk') {
-                        env.NAMESPACE = 'namespace1'
-                        env.SERVICE_NAME = 'service1'
-                    } else if (env.BRANCH_NAME == 'qa') {
-                        env.NAMESPACE = 'namespace2'
-                        env.SERVICE_NAME = 'service1'
-                    } else {
-                        error "Branch not supported: ${env.BRANCH_NAME}"
+                    // Usar parámetros en lugar de variables locales
+                    def namespace = params.NAMESPACE
+                    def serviceName = params.SERVICE_NAME
+
+                    // Validar que los parámetros no sean nulos ni vacíos
+                    if (!namespace?.trim()) {
+                        error "NAMESPACE is not set properly"
                     }
+                    if (!serviceName?.trim()) {
+                        error "SERVICE_NAME is not set properly"
+                    }
+
+                    // Asignar las variables de entorno
+                    env.NAMESPACE = namespace
+                    env.SERVICE_NAME = serviceName
 
                     echo "NAMESPACE: ${env.NAMESPACE}"
                     echo "SERVICE_NAME: ${env.SERVICE_NAME}"
@@ -45,11 +52,6 @@ pipeline {
         stage('Extract Information') {
             steps {
                 script {
-                    // Validar que SERVICE_NAME no sea nulo ni vacío
-                    if (!env.SERVICE_NAME?.trim()) {
-                        error "SERVICE_NAME is not set properly"
-                    }
-
                     // Leer el archivo cuyo nombre es el del servicio con extensión .txt
                     def fileName = "${env.SERVICE_NAME}.txt"
                     if (!fileExists(fileName)) {
