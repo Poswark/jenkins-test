@@ -57,6 +57,7 @@ pipeline {
                     if (!fileExists(fileName)) {
                         error "File not found: ${fileName}"
                     }
+                    sh "cat ${fileName}"
 
                     def fileContent = readFile(fileName)
                     def lines = fileContent.split('\n')
