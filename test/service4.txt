@@ -1,1 +1,1 @@
-snakc=sha
+snakc=shagit 
