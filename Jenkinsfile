@@ -5,9 +5,15 @@ pipeline {
         // Variables para el namespace y el nombre del servicio
         NAMESPACE = ''
         SERVICE_NAME = ''
+        REPO_URL = 'https://github.com/Poswark/jenkins-test.git'
     }
 
     stages {
+        stage('Clone Repository') {
+            steps {
+                git branch: '${env.BRANCH_NAME}', url: '${env.REPO_URL}'
+            }
+        }
         stage('Branch') {
             steps {
                 script {
@@ -24,12 +30,21 @@ pipeline {
                 }
             }
         }
-        stage('service') {
+      stage('Extract Information') {
             steps {
                 script {
-                                        
+                    // Validar que SERVICE_NAME no sea nulo ni vacío
+                    if (!env.SERVICE_NAME?.trim()) {
+                        error "SERVICE_NAME is not set properly"
+                    }
+
                     // Leer el archivo cuyo nombre es el del servicio con extensión .txt
-                    def fileContent = readFile("${env.SERVICE_NAME}.txt")
+                    def fileName = "${env.SERVICE_NAME}.txt"
+                    if (!fileExists(fileName)) {
+                        error "File not found: ${fileName}"
+                    }
+
+                    def fileContent = readFile(fileName)
                     def lines = fileContent.split('\n')
                     def infoMap = [:]
 
