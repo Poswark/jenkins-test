@@ -28,8 +28,8 @@ pipeline {
             steps {
                 script {
                                         
-                    // Leer el archivo y extraer la información
-                    def fileContent = readFile('info.txt')
+                    // Leer el archivo cuyo nombre es el del servicio con extensión .txt
+                    def fileContent = readFile("${env.SERVICE_NAME}.txt")
                     def lines = fileContent.split('\n')
                     def infoMap = [:]
 
@@ -38,16 +38,17 @@ pipeline {
                         if (parts.size() == 2) {
                             def key = parts[0].trim()
                             def value = parts[1].trim()
+                            // Verificar si la clave empieza con el namespace y el nombre del servicio
                             if (key.startsWith("${env.NAMESPACE}.${env.SERVICE_NAME}")) {
                                 infoMap[key] = value
                             }
                         }
                     }
 
-                    echo "Extracted Information:"
-                    infoMap.each { key, value ->
-                        echo "${key} = ${value}"
-                    }
+                    // echo "Extracted Information:"
+                    // infoMap.each { key, value ->
+                    //     echo "${key} = ${value}"
+                    // }
 
                 }
             }
