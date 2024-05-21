@@ -11,7 +11,14 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: '${env.BRANCH_NAME}', url: "${env.REPO_URL}"
+                script {
+                    // Configurar las credenciales si es necesario
+                    def branchName = env.BRANCH_NAME
+                    if (!branchName) {
+                        error "BRANCH_NAME is not set"
+                    }
+                    git branch: branchName, url: REPO_URL
+                }
             }
         }
         
