@@ -11,10 +11,11 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: '${env.BRANCH_NAME}', url: 'https://github.com/Poswark/jenkins-test.git'}
+                git branch: '${env.BRANCH_NAME}', url: "${env.REPO_URL}"
             }
         }
-        stage('Branch') {
+        
+        stage('Set Variables') {
             steps {
                 script {
                     // Establecer las variables dependiendo de la rama
@@ -25,12 +26,16 @@ pipeline {
                         env.NAMESPACE = 'namespace2'
                         env.SERVICE_NAME = 'service1'
                     } else {
-                        error "Branch not supported"
+                        error "Branch not supported: ${env.BRANCH_NAME}"
                     }
+
+                    echo "NAMESPACE: ${env.NAMESPACE}"
+                    echo "SERVICE_NAME: ${env.SERVICE_NAME}"
                 }
             }
         }
-      stage('Extract Information') {
+
+        stage('Extract Information') {
             steps {
                 script {
                     // Validar que SERVICE_NAME no sea nulo ni vacío
@@ -60,13 +65,13 @@ pipeline {
                         }
                     }
 
-                    // echo "Extracted Information:"
-                    // infoMap.each { key, value ->
-                    //     echo "${key} = ${value}"
-                    // }
-
+                    // Imprimir la información extraída
+                    echo "Extracted Information:"
+                    infoMap.each { key, value ->
+                        echo "${key} = ${value}"
+                    }
                 }
             }
         }
     }
-
+}
