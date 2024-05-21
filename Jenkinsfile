@@ -11,14 +11,14 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: '${env.BRANCH_NAME}', url: '${env.REPO_URL}'
+                git branch: '${env.BRANCH_NAME}', url: 'https://github.com/Poswark/jenkins-test.git'}
             }
         }
         stage('Branch') {
             steps {
                 script {
                     // Establecer las variables dependiendo de la rama
-                    if (env.BRANCH_NAME == 'main') {
+                    if (env.BRANCH_NAME == 'trunk') {
                         env.NAMESPACE = 'namespace1'
                         env.SERVICE_NAME = 'service1'
                     } else if (env.BRANCH_NAME == 'qa') {
