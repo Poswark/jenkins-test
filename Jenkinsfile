@@ -53,7 +53,7 @@ pipeline {
             steps {
                 script {
                     // Leer el archivo cuyo nombre es el del servicio con extensión .txt
-                    def fileName = "${env.SERVICE_NAME}.txt"
+                    def fileName = "${env.NAMESPACE}/${env.SERVICE_NAME}.txt"
                     if (!fileExists(fileName)) {
                         error "File not found: ${fileName}"
                     }
