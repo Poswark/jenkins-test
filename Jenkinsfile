@@ -66,5 +66,14 @@ pipeline {
                 }
             }
         }
+        stage('Download File') {
+            steps {
+                script {
+                    def fileName = "${env.NAMESPACE}/${env.SERVICE_NAME}.txt"
+                    sh "curl -o ${env.SERVICE_NAME}.txt ${REPO_URL}/raw/${env.BRANCH_NAME}/${fileName}"
+                    echo "\u001B[32mSUCCESS:\u001B[0m Downloaded file ${fileName}"
+                }
+            }
+        }
     }
 }
