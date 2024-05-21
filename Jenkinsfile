@@ -45,6 +45,9 @@ pipeline {
 
                     echo "NAMESPACE: ${env.NAMESPACE}"
                     echo "SERVICE_NAME: ${env.SERVICE_NAME}"
+                    // Listar archivos de ese namespace
+                    sh "echo Listar servicios de namespace"
+                    sh "ls -ltr ${env.NAMESPACE}"
                 }
             }
         }
@@ -58,28 +61,6 @@ pipeline {
                         error "File not found: ${fileName}"
                     }
                     sh "cat ${fileName}"
-
-                    def fileContent = readFile(fileName)
-                    def lines = fileContent.split('\n')
-                    def infoMap = [:]
-
-                    lines.each { line ->
-                        def parts = line.split('=')
-                        if (parts.size() == 2) {
-                            def key = parts[0].trim()
-                            def value = parts[1].trim()
-                            // Verificar si la clave empieza con el namespace y el nombre del servicio
-                            if (key.startsWith("${env.NAMESPACE}.${env.SERVICE_NAME}")) {
-                                infoMap[key] = value
-                            }
-                        }
-                    }
-
-                    // Imprimir la información extraída
-                    echo "Extracted Information:"
-                    infoMap.each { key, value ->
-                        echo "${key} = ${value}"
-                    }
                 }
             }
         }
