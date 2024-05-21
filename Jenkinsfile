@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     parameters {
+        choice(name: 'BRANCH_NAME', choices: ['trun', 'qa', 'xxx'], description: 'Branch to build')
         string(name: 'NAMESPACE', defaultValue: '', description: 'Namespace of the service')
         string(name: 'SERVICE_NAME', defaultValue: '', description: 'Name of the service')
     }
