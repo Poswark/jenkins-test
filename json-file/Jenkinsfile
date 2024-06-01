@@ -26,7 +26,7 @@ pipeline {
                     // Ejecutar el script para agregar el usuario
                     sh "ls"
                     sh "pwd"
-                    sh "python3 ${PWD}json-file/${SCRIPT_NAME} ${params.NEW_USER} ${params.EDAD} ${params.NAMESPACE}"
+                    sh "python3 $(pwd)json-file/${SCRIPT_NAME} ${params.NEW_USER} ${params.EDAD} ${params.NAMESPACE}"
                 }
             }
         }
