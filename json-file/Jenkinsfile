@@ -48,7 +48,7 @@ pipeline {
                     
                     // Agregar y hacer commit de los cambios
                     sh 'git add template.json'
-                    sh 'git commit -m "Agregar nuevo usuario ${params.NEW_USER}"'
+                    sh 'git commit -m "Agregar nuevo usuario"'
                     
                     // Empujar la nueva rama al repositorio remoto
                     withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
