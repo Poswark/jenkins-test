@@ -42,12 +42,10 @@ pipeline {
             steps {
                 script {
                     // Configurar Git
-                    sh 'git config user.email "jenkins@example.com"'
-                    sh 'git config user.name "Jenkins"'
                     
                     // Agregar y hacer commit de los cambios
                     sh 'git add template.json'
-                    sh 'git commit -m "Agrega nuevo usuario ${params.NEW_USER} con edad ${params.EDAD} y namespace ${params.NAMESPACE}"'
+                    sh 'git commit -m "example"'
                     
                     // Empujar los cambios al repositorio
                     withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
