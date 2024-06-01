@@ -38,19 +38,21 @@ pipeline {
     }
 
         
-        stage('Commit and Push Changes') {
-            steps {
-                script {
-                    // Configurar Git
-                    
+    stage('Commit and Push Changes') {
+        steps {
+            script {
+                sh 'git pull origin trunk'
+                sh 'git checkout -b feature/random'
                     // Agregar y hacer commit de los cambios
-                    sh 'git add template.json'
-                    sh 'git commit -m "example"'
+                sh 'git add template.json'
+                sh 'git commit -m "example"'
+                sh 'git request-pull feature/random ${REPO_URL} trunk'
+
                     
-                    // Empujar los cambios al repositorio
-                    withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                        sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/tu-usuario/tu-repo.git'
-                    }
+                    // // Empujar los cambios al repositorio
+                    // withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                    //     sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/tu-usuario/tu-repo.git'
+                    // }
                 }
             }
         }
