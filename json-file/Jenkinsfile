@@ -44,7 +44,7 @@ pipeline {
 
                    
                     // Crear y cambiar a una nueva rama
-                    sh 'git checkout -b feature/add-user'
+                    sh 'git checkout -b feature/random64'
                     
                     // Agregar y hacer commit de los cambios
                     sh 'git add template.json'
