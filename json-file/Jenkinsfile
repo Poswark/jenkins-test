@@ -19,17 +19,24 @@ pipeline {
                 git url: "${REPO_URL}", branch: 'trunk'
             }
         }
-        
-        stage('Add Data') {
-            steps {
-                script {
-                    // Ejecutar el script para agregar el usuario
-                    sh "ls"
-                    sh "pwd"
-                    sh "python3 $(pwd)json-file/${SCRIPT_NAME} ${params.NEW_USER} ${params.EDAD} ${params.NAMESPACE}"
+    stage('Add Data') {
+        steps {
+            script {
+                try {
+                    // Verificar la existencia del script antes de ejecutarlo
+                    if (fileExists("json-file/${SCRIPT_NAME}")) {
+                        // Ejecutar el script para agregar el usuario
+                        sh "python3 json-file/${SCRIPT_NAME} ${params.NEW_USER} ${params.EDAD} ${params.NAMESPACE}"
+                    } else {
+                        error "El script ${SCRIPT_NAME} no se encontró en la ruta json-file/"
+                    }
+                } catch (Exception e) {
+                    error "Error ejecutando el script: ${e.getMessage()}"
                 }
             }
         }
+    }
+
         
         stage('Commit and Push Changes') {
             steps {
