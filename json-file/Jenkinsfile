@@ -1,0 +1,53 @@
+pipeline {
+    agent any
+    
+    environment {
+        REPO_URL = 'https://github.com/Poswark/jenkins-test.git'
+        SCRIPT_NAME = 'user.py'
+    }
+
+    parameters {
+        string(name: 'NEW_USER', defaultValue: 'defaultUser', description: 'Nombre del nuevo usuario')
+        string(name: 'EDAD', defaultValue: '25', description: 'Edad del nuevo usuario')
+        string(name: 'NAMESPACE', defaultValue: 'defaultNamespace', description: 'Namespace del nuevo usuario')
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                // Clonar el repositorio
+                git url: "${REPO_URL}", branch: 'trunk'
+            }
+        }
+        
+        stage('Add Data') {
+            steps {
+                script {
+                    // Ejecutar el script para agregar el usuario
+                    sh "ls"
+                    sh "pwd"
+                    sh "python3 ${SCRIPT_NAME} ${params.NEW_USER} ${params.EDAD} ${params.NAMESPACE}"
+                }
+            }
+        }
+        
+        stage('Commit and Push Changes') {
+            steps {
+                script {
+                    // Configurar Git
+                    sh 'git config user.email "jenkins@example.com"'
+                    sh 'git config user.name "Jenkins"'
+                    
+                    // Agregar y hacer commit de los cambios
+                    sh 'git add template.json'
+                    sh 'git commit -m "Agrega nuevo usuario ${params.NEW_USER} con edad ${params.EDAD} y namespace ${params.NAMESPACE}"'
+                    
+                    // Empujar los cambios al repositorio
+                    withCredentials([usernamePassword(credentialsId: 'github-credentials', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
+                        sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/tu-usuario/tu-repo.git'
+                    }
+                }
+            }
+        }
+    }
+}
