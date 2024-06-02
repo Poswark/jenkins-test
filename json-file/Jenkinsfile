@@ -10,13 +10,29 @@ pipeline {
         string(name: 'NEW_USER', defaultValue: 'defaultUser', description: 'Nombre del nuevo usuario')
         string(name: 'EDAD', defaultValue: '25', description: 'Edad del nuevo usuario')
         string(name: 'NAMESPACE', defaultValue: 'defaultNamespace', description: 'Namespace del nuevo usuario')
+        choice(name: 'BRANCH', choices: ['dev', 'uat', 'prd'], description: 'Rama donde se ejecutará el script')
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                // Clonar el repositorio
-                git url: "${REPO_URL}", branch: 'trunk'
+                git url: "${REPO_URL}", branch: "${BRANCH}"
+            }
+        }
+        
+        stage('Add Data') {
+            steps {
+                script {
+                    try {
+                        if (fileExists("json-file/${SCRIPT_NAME}")) {
+                            sh "python3 json-file/${SCRIPT_NAME} ${params.NEW_USER} ${params.EDAD} ${params.NAMESPACE} ${params.BRANCH}"
+                        } else {
+                            error "El script ${SCRIPT_NAME} no se encontró en la ruta json-file/"
+                        }
+                    } catch (Exception e) {
+                        error "Error ejecutando el script: ${e.getMessage()}"
+                    }
+                }
             }
         }
     stage('Add Data') {
@@ -47,7 +63,7 @@ pipeline {
                     sh "git checkout -b ${randomBranch}"
                     sh 'git add template.json'
                     sh 'git commit -m "Agregar nuevo usuario"'
-                    sh "git push origin ${randomBranch}"
+                    //sh "git push origin ${randomBranch}"
                     
                     
                 
