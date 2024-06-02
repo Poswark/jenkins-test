@@ -7,10 +7,10 @@ pipeline {
     }
 
     parameters {
+        choice(name: 'BRANCH', choices: ['dev', 'uat', 'prd'], description: 'Rama donde se ejecutará el script')
         string(name: 'NEW_USER', defaultValue: 'defaultUser', description: 'Nombre del nuevo usuario')
         string(name: 'EDAD', defaultValue: '25', description: 'Edad del nuevo usuario')
         string(name: 'NAMESPACE', defaultValue: 'defaultNamespace', description: 'Namespace del nuevo usuario')
-        choice(name: 'BRANCH', choices: ['dev', 'uat', 'prd'], description: 'Rama donde se ejecutará el script')
     }
 
     stages {
@@ -35,26 +35,8 @@ pipeline {
                 }
             }
         }
-    stage('Add Data') {
-        steps {
-            script {
-                try {
-                    // Verificar la existencia del script antes de ejecutarlo
-                    if (fileExists("json-file/${SCRIPT_NAME}")) {
-                        // Ejecutar el script para agregar el usuario
-                        sh "python3 json-file/${SCRIPT_NAME} ${params.NEW_USER} ${params.EDAD} ${params.NAMESPACE}"
-                    } else {
-                        error "El script ${SCRIPT_NAME} no se encontró en la ruta json-file/"
-                    }
-                } catch (Exception e) {
-                    error "Error ejecutando el script: ${e.getMessage()}"
-                }
-            }
-        }
-    }
-
         
-    stage('Commit and Push Changes') {
+        stage('Add Data') {
             steps {
                 script {
                     def randomBranch = "feature/" + UUID.randomUUID().toString().substring(0, 8)
@@ -70,5 +52,21 @@ pipeline {
                 }
             }
         }
+        stage('Commit and Push Changes') {
+                steps {
+                    script {
+                        def randomBranch = "feature/" + UUID.randomUUID().toString().substring(0, 8)
+                        
+                        sh "git pull origin ${BRANCH}"
+                        sh "git checkout -b ${randomBranch}"
+                        sh 'git add template.json'
+                        sh 'git commit -m "Agregar nuevo usuario"'
+                        //sh "git push origin ${randomBranch}"
+                        
+                        
+                    
+                    }
+                }
+            }
     }
 }
