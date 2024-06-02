@@ -10,10 +10,8 @@ pipeline {
         choice(name: 'BRANCH', choices: ['dev', 'uat', 'prd'], description: 'Rama donde se ejecutará el script')
         string(name: 'NEW_USER', defaultValue: 'defaultUser', description: 'Nombre del nuevo usuario')
         string(name: 'EDAD', defaultValue: '25', description: 'Edad del nuevo usuario')
-        string(name: 'NAMESPACE', defaultValue: 'defaultNamespace', description: 'Namespace del nuevo usuario')
-        
+        string(name: 'NAMESPACE', defaultValue: 'defaultNamespace', description: 'Namespace del nuevo usuario')        
     }
-
     stages {
         stage('Clone Repository') {
             steps {
@@ -47,8 +45,6 @@ pipeline {
                         sh 'git commit -m "Agregar nuevo usuario"'
                         //sh "git push origin ${randomBranch}"
                         
-                        
-                    
                     }
                 }
             }
