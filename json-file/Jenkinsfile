@@ -41,7 +41,7 @@ pipeline {
                     script {
                         def randomBranch = "feature/" + UUID.randomUUID().toString().substring(0, 8)
                         
-                        sh 'git pull origin trunk'
+                        sh "git pull origin ${BRANCH}"
                         sh "git checkout -b ${randomBranch}"
                         sh 'git add template.json'
                         sh 'git commit -m "Agregar nuevo usuario"'
