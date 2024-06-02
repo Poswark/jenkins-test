@@ -42,21 +42,14 @@ pipeline {
             steps {
                 script {
 
-                   
-                    // Crear y cambiar a una nueva rama
+                    sh 'git pull origin trunk'
                     sh 'git checkout -b feature/random64'
-                    
-                    // Agregar y hacer commit de los cambios
                     sh 'git add template.json'
                     sh 'git commit -m "Agregar nuevo usuario"'
+                    sh 'git push origin feature/random64'
                     
-                    // Empujar la nueva rama al repositorio remoto
-                    withCredentials([usernamePassword(credentialsId: 'github', usernameVariable: 'GIT_USERNAME', passwordVariable: 'GIT_PASSWORD')]) {
-                        sh 'git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/Poswark/jenkins-test.git feature/add-user'
-                    }
                     
-                    // Crear un pull request (requiere que tengas la herramienta hub instalada o usa la API de GitHub)
-                    sh 'hub pull-request -b trunk -h feature/add-user -m "Agregar nuevo usuario ${params.NEW_USER}"'
+                
                 }
             }
         }
