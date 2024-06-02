@@ -41,12 +41,13 @@ pipeline {
     stage('Commit and Push Changes') {
             steps {
                 script {
-
+                    def randomBranch = "feature/" + UUID.randomUUID().toString().substring(0, 8)
+                    
                     sh 'git pull origin trunk'
-                    sh 'git checkout -b feature/random64'
+                    sh "git checkout -b ${randomBranch}"
                     sh 'git add template.json'
                     sh 'git commit -m "Agregar nuevo usuario"'
-                    sh 'git push origin feature/random64'
+                    sh "git push origin ${randomBranch}"
                     
                     
                 
