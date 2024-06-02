@@ -35,40 +35,40 @@ pipeline {
                 }
             }
         }
-    stage('Add Data') {
-        steps {
-            script {
-                try {
-                    // Verificar la existencia del script antes de ejecutarlo
-                    if (fileExists("json-file/${SCRIPT_NAME}")) {
-                        // Ejecutar el script para agregar el usuario
-                        sh "python3 json-file/${SCRIPT_NAME} ${params.NEW_USER} ${params.EDAD} ${params.NAMESPACE}"
-                    } else {
-                        error "El script ${SCRIPT_NAME} no se encontró en la ruta json-file/"
-                    }
-                } catch (Exception e) {
-                    error "Error ejecutando el script: ${e.getMessage()}"
-                }
-            }
-        }
-    }
-
-        
-    stage('Commit and Push Changes') {
+        stage('Add Data') {
             steps {
                 script {
-                    def randomBranch = "feature/" + UUID.randomUUID().toString().substring(0, 8)
-                    
-                    sh 'git pull origin trunk'
-                    sh "git checkout -b ${randomBranch}"
-                    sh 'git add template.json'
-                    sh 'git commit -m "Agregar nuevo usuario"'
-                    sh "git push origin ${randomBranch}"
-                    
-                    
-                
+                    try {
+                        // Verificar la existencia del script antes de ejecutarlo
+                        if (fileExists("json-file/${SCRIPT_NAME}")) {
+                            // Ejecutar el script para agregar el usuario
+                            sh "python3 json-file/${SCRIPT_NAME} ${params.NEW_USER} ${params.EDAD} ${params.NAMESPACE}"
+                        } else {
+                            error "El script ${SCRIPT_NAME} no se encontró en la ruta json-file/"
+                        }
+                    } catch (Exception e) {
+                        error "Error ejecutando el script: ${e.getMessage()}"
+                    }
                 }
             }
         }
+
+        
+        stage('Commit and Push Changes') {
+                steps {
+                    script {
+                        def randomBranch = "feature/" + UUID.randomUUID().toString().substring(0, 8)
+                        
+                        sh 'git pull origin trunk'
+                        sh "git checkout -b ${randomBranch}"
+                        sh 'git add template.json'
+                        sh 'git commit -m "Agregar nuevo usuario"'
+                        sh "git push origin ${randomBranch}"
+                        
+                        
+                    
+                    }
+                }
+            }
     }
 }
