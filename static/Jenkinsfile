@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+    
+    environment {
+        REGISTRY_URL = "tu-registro"  // Cambia a la URL de tu registro de Docker
+        IMAGE_NAME = "mi-app"         // Nombre base de la imagen
+        DOCKER_CREDENTIALS_ID = 'docker-credentials'  // ID de las credenciales de Docker en Jenkins
+    }
+    
+    stages {
+        stage('Build and Push Images') {
+            steps {
+                script {
+                    // Lista de entornos
+                    def environments = ['dist-dev', 'dist-uat', 'dist-prd']
+                    
+                    // Iterar sobre cada entorno para construir y subir las imágenes
+                    for (env in environments) {
+                        def imageTag = "${IMAGE_NAME}:${env}"
+                        
+                        echo "Construyendo la imagen para ${env}..."
+                        
+                        // Construir la imagen de Docker
+                        sh """
+                            docker build -t ${REGISTRY_URL}/${imageTag} --build-arg DIST_FOLDER=${env} .
+                        """
+                        
+                        // Autenticarse en el registro de Docker
+                        //docker.withRegistry("https://${REGISTRY_URL}", "${DOCKER_CREDENTIALS_ID}") {
+                            // Subir la imagen al registro
+                            // sh """
+                            //     docker push ${REGISTRY_URL}/${imageTag}
+                            // """
+                        }
+                        
+                        echo "Imagen  construida y subida exitosamente."
+                    }
+                }
+            }
+        }
+    
+    
+    post {
+        always {
+            echo "Pipeline completado"
+        }
+        cleanup {
+            // Limpia las imágenes locales después de la construcción
+            sh "docker images"
+            // sh "docker rmi ${REGISTRY_URL}/${IMAGE_NAME}:dist-dev"
+            // sh "docker rmi ${REGISTRY_URL}/${IMAGE_NAME}:dist-uat"
+            // sh "docker rmi ${REGISTRY_URL}/${IMAGE_NAME}:dist-prd"
+        }
+    }
+}

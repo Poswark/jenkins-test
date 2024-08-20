@@ -1,0 +1,55 @@
+/* General page settings */
+body {
+  font-family: 'Arial', sans-serif;
+  text-align: center;
+  background: linear-gradient(120deg, #f0f0f0, #e0e0e0);
+  margin: 0;
+  padding: 0;
+}
+
+/* Header styling */
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* Logo styling with animation */
+.logo {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 20px;
+  transition: transform 0.5s ease-in-out;
+}
+
+.logo:hover {
+  transform: rotate(360deg);
+}
+
+/* Title styling with dynamic effects */
+.title {
+  font-size: 3rem;
+  color: #333;
+  animation: colorChange 3s infinite;
+  margin: 0;
+}
+
+/* Animation for dynamic color change */
+@keyframes colorChange {
+  0% {
+    color: #333;
+  }
+  50% {
+    color: #ff5722;
+  }
+  100% {
+    color: #333;
+  }
+}
+
+/* Adding subtle shadow effect */
+.title {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
