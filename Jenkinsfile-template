@@ -12,7 +12,7 @@ pipeline {
                     // Definimos el directorio donde clonaremos el repositorio
                     dir('src') {
                         // Clonamos el repositorio
-                        git branch: 'main', url: 'https://github.com/Poswark/jenkins-test.git'
+                        git branch: 'trunk', url: 'https://github.com/Poswark/jenkins-test.git'
                     }
 
                     // Asignamos la variable de entorno dependiendo del parámetro elegido
