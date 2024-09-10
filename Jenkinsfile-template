@@ -1,0 +1,60 @@
+pipeline {
+    agent any
+
+    parameters {
+        choice(name: 'ENV', choices: ['dev', 'uat', 'prod'], description: 'Select the environment')
+    }
+
+    stages {
+        stage('Clone Repository') {
+            steps {
+                script {
+                    // Definimos el directorio donde clonaremos el repositorio
+                    dir('src') {
+                        // Clonamos el repositorio
+                        git branch: 'main', url: 'https://github.com/Poswark/jenkins-test.git'
+                    }
+
+                    // Asignamos la variable de entorno dependiendo del parámetro elegido
+                    if (params.ENV == 'dev') {
+                        env.ENV = 'dev'
+                    } else if (params.ENV == 'uat') {
+                        env.ENV = 'uat'
+                    } else {
+                        env.ENV = 'prod'
+                    }
+                }
+            }
+        }
+
+        stage('Execute Python Script') {
+            steps {
+                script {
+                    // Mostramos el directorio actual
+                    sh 'pwd'
+                    // Imprimimos el valor de ENV
+                    echo "Environment: ${env.ENV}"
+                    // Ejecutamos el script Python
+                    sh 'python3 src/app.py'
+                }
+            }
+        }
+
+        stage('Replace Python Execution') {
+            steps {
+                script {
+                    // En vez de ejecutar el Python, manipulamos directamente el archivo
+                    sh '''
+                        echo "Contenido añadido al archivo" >> src/path/to/archivo.txt
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}
