@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    parameters {
+        stashedFile(name: 'configmap', description: 'ConfigMap file')
+    }
+
+    environment {
+        CONFIGMAP_FILE = 'configmap.txt' // Inicializa la variable globalmente
+    }
+
+    stages {
+        stage('Decode and Save ConfigMap') {
+            steps {
+                cleanWs()
+                script {
+                    unstash 'configmap'
+                    sh 'cat configmap > configmap.txt'
+                    sh "cat ${env.CONFIGMAP_FILE}"
+                    echo "ConfigMap file stored in a variable: ${CONFIGMAP_FILE}"
+                    
+                }
+            }
+        }
+
+    }
+    post {
+        success {
+            script {
+                echo 'Build succeeded!'
+                //sendTeamsNotification("Build Success", "The build was successful.")
+            }
+        }
+
+        failure {
+            script {
+                echo 'Build failed!'
+                //sendTeamsNotification("Build Failure", "The build failed.")
+            }
+        }
+    }
+}
