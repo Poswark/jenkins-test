@@ -1,5 +1,5 @@
 def approvalStatus
-pipeline {
+pipeline { 
     agent any
 	environment {
 		APPROVAL_STATUS = 'started' 
