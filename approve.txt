@@ -1,9 +1,9 @@
 def approvalStatus
 pipeline {
-	agent any
-	environment {
-		APPROVAL_STATUS = 'started' 
-	} 
+    agent any
+    environment {
+	APPROVAL_STATUS = 'started' 
+    } 
     stages {
         stage('Approval') {
             steps {
