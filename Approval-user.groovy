@@ -1,0 +1,63 @@
+def approvalStatus
+pipeline {
+    agent any
+	environment {
+		APPROVAL_STATUS = 'started' 
+	}
+    stages {
+        stage('Approval') {
+            steps {
+                script {
+					timeout(time: 1, unit: 'HOURS') {
+						def approvalInput = input(
+							message: 'Do you want to approve this build?',
+							ok: 'Submit',
+							parameters: [
+								choice(choices: ['Approved', 'Rejected'], name: 'ApprovalStatus', description: 'Choose approval status'),
+								text(name: 'Reason', defaultValue: '', description: 'If rejected, provide a reason (required for rejection)')
+							],
+							submitter: 'user1,user2,user3', 
+							submitterParameter: 'approverID'
+						)
+						
+						approvalStatus = approvalInput['ApprovalStatus']
+						def rejectionReason = approvalInput['Reason']
+						def approverID = approvalInput['approverID'] ?: 'anonymous'
+
+                        echo "Approver: ${approverID}"
+                        if (approverID == 'anonymous') {
+                            error('Approval cannot be submitted by an anonymous user.')
+                        }
+
+						if (approvalStatus == 'Rejected' && rejectionReason.trim() == '') {
+							error('A reason must be provided if the request is rejected.')
+						}
+
+						if (approvalStatus == 'Rejected') {
+							echo "Rejection reason provided: ${rejectionReason}"
+							error("Pipeline terminated due to rejection by ${approverID}. Reason: ${rejectionReason}")
+							error(rejectionReason)
+
+						} else if (approvalStatus == 'Approved') {
+							echo "The build has been approved by ${approverID}."
+                            println "Raw Approval Input: ${approvalStatus}"
+						} else {
+							error("Unexpected approval status: ${approvalStatus}. Timeout the request.")
+						}
+                        
+
+					}
+            }
+        }
+		}
+        stage('Deploy') {
+            when {
+                expression { "${approvalStatus}" == 'Approved' }
+            }
+            steps {
+                echo "Deploying the application..."
+                sh 'echo "Deployment process completed."'
+            }
+        }
+    }
+}
