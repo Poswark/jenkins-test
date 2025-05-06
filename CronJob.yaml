@@ -1,0 +1,64 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: update-cacerts
+spec:
+  schedule: "*/1 * * * *"  
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          volumes:
+            - name: cacerts-volume
+              persistentVolumeClaim:
+                claimName: cacerts-pvc
+          containers:
+            - name: cert-updater
+              image: eclipse-temurin:21-jdk
+              command:
+                - /bin/bash
+                - -c
+                - |
+                  apt-get update && apt-get install -y curl openssl
+
+                  echo "[INFO] Descargando certificado..."
+                  echo | openssl s_client -connect updates.jenkins.io:443 -servername updates.jenkins.io 2>/dev/null | \
+                  sed -n '/BEGIN CERTIFICATE/,/END CERTIFICATE/p' > /cacerts/updates.jenkins.io.crt
+
+                  echo "[INFO] Validando certificado..."
+                  openssl x509 -in /cacerts/updates.jenkins.io.crt -text -noout || {
+                    echo "❌ Certificado inválido. Abortando..."
+                    exit 1
+                  }
+
+                  echo "[INFO] Importando certificado..."
+                  cp "/cacerts/cacerts" /cacerts/cacerts.bak-$(date +%Y%m%d%H%M%S)
+
+                  keytool -delete -noprompt -alias jenkins-updates \
+                    -keystore /cacerts/cacerts \
+                    -storepass changeit
+
+
+                  keytool -importcert -noprompt -trustcacerts \
+                    -alias jenkins-updates \
+                    -file /cacerts/updates.jenkins.io.crt \
+                    -keystore /cacerts/cacerts \
+                    -storepass changeit
+
+                  echo "[✅] Certificado actualizado correctamente."
+              volumeMounts:
+                - name: cacerts-volume
+                  mountPath: /cacerts
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cacerts-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 100Mi
