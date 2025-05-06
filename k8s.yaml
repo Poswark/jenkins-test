@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: jenkins
-          image: poswark/jenkins:0.0.17
+          image: jenkins/jenkins:2.504.1-lts-jdk21
           ports:
             - containerPort: 8080
             - containerPort: 50000
