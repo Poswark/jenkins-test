@@ -1,0 +1,100 @@
+#!/bin/bash
+export MONGO_USER=user
+export MONGO_PASS=pass
+export MONGO_DB=document
+set -e  # Salir si ocurre cualquier error
+
+# Cargar variables desde el .env
+
+# Obtener fecha actual
+DATE=$(date +"%Y-%m-%d_%H-%M")
+
+# Directorios
+TMP_DUMP_DIR="/data/db/dump_$DATE"
+LOCAL_DUMP_DIR="./backup/finanzas_backup_$DATE"
+ZIP_FILE="./backup/finanzas_backup_$DATE.zip"
+
+echo "📦 Iniciando backup de MongoDB..."
+
+# Ejecutar mongodump dentro del contenedor
+echo "🔄 Ejecutando mongodump..."
+docker exec mongodb mongodump \
+  --username="$MONGO_USER" \
+  --password="$MONGO_PASS" \
+  --authenticationDatabase=admin \
+  --db="$MONGO_DB" \
+  --out="$TMP_DUMP_DIR"
+
+# Verificar si el dump se generó correctamente
+if ! docker exec mongodb test -d "$TMP_DUMP_DIR"; then
+  echo "❌ Error: El dump no fue creado en el contenedor. Abortando."
+  exit 2
+fi
+
+# Copiar dump desde el contenedor al host
+echo "📁 Copiando dump al host..."
+docker cp "mongodb:$TMP_DUMP_DIR" "$LOCAL_DUMP_DIR"
+
+# Limpiar dump dentro del contenedor
+echo "🧹 Limpiando archivos temporales en el contenedor..."
+docker exec mongodb rm -rf "$TMP_DUMP_DIR"
+
+# Comprimir backup
+echo "🗜 Comprimiendo backup..."
+zip -rq "$ZIP_FILE" "$LOCAL_DUMP_DIR"
+
+# Eliminar carpeta sin comprimir
+rm -rf "$LOCAL_DUMP_DIR"
+
+# Confirmación final
+echo "✅ Backup realizado con éxito"
+echo "📄 Archivo comprimido: $ZIP_FILE"
+
+----
+Jenkinsfile
+
+pipeline {
+    agent any
+
+    triggers {
+        cron('H/15 * * * *') // Cada 15 minutos, por ejemplo
+    }
+
+    environment {
+        ANSIBLE_HOST_KEY_CHECKING = 'False'
+    }
+
+    stages {
+        stage('Run Ansible') {
+            steps {
+                sh '''
+                    ansible-playbook -i inventories/prod.ini playbook.yml
+                '''
+            }
+        }
+    }
+}
+
+---
+---
+---
+- name: Ejecutar comando en servidor remoto
+  hosts: remote_servers
+  become: yes
+  tasks:
+    - name: Ejecutar shell remoto y mostrar salida
+      shell: |
+        echo "Inicio ejecución remota..."
+        ./script_remoto.sh
+      args:
+        chdir: /home/ubuntu/scripts/
+      register: resultado
+
+    - name: Imprimir salida del script
+      debug:
+        msg: |
+          STDOUT:
+          {{ resultado.stdout }}
+          
+          STDERR:
+          {{ resultado.stderr }}
